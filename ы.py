@@ -86,6 +86,10 @@ class Board:
         if piece.color != self.color:
             return False
         if piece.can_move(self, row, col, row1, col1):
+            if isinstance(piece, King) or isinstance(piece, Rook):
+                piece.can_castle = False
+            if self.move_and_promote_pawn(row, col, row1, col1):
+                return True
             self.field[row][col] = None  # Снять фигуру.
             self.field[row1][col1] = piece  # Поставить на новое место.
             self.color = opponent(self.color)
@@ -102,19 +106,50 @@ class Board:
                             return True
         return False
 
-    def move_and_promote_pawn(self, row, col, row1, col1, char):
+    def move_and_promote_pawn(self, row, col, row1, col1):
         if isinstance(self.field[row][col], Pawn) and (row1 == 7 or row1 == 0):
             if self.field[row][col].can_move(self, row, col, row1, col1):
-                if char == 'Q':
-                    self.field[row1][col1] = Queen(self.field[row][col].color)
-                elif char == 'R':
-                    self.field[row1][col1] = Rook(self.field[row][col].color)
-                elif char == 'B':
-                    self.field[row1][col1] = Bishop(self.field[row][col].color)
-                elif char == 'N':
-                    self.field[row1][col1] = Knight(self.field[row][col].color)
+                self.field[row1][col1] = Queen(self.field[row][col].color)
                 self.field[row][col] = None
                 return True
+        return False
+
+    def castling0(self):
+        if self.color == WHITE:
+            if isinstance(self.field[0][0], Rook) and isinstance(self.field[0][4], King):
+                if (self.field[0][0].can_castle and self.field[0][4].can_castle and
+                        all([self.field[0][i] is None for i in range(1, 4)])):
+                    self.move_piece(0, 0, 0, 3)
+                    self.field[0][4], self.field[0][2] = None, self.field[0][4]
+                    self.field[0][2].can_castle = False
+                    return True
+        else:
+            if isinstance(self.field[7][0], Rook) and isinstance(self.field[7][4], King):
+                if (self.field[7][0].can_castle and self.field[7][4].can_castle and
+                        all([self.field[7][i] is None for i in range(1, 4)])):
+                    self.move_piece(7, 0, 7, 3)
+                    self.field[7][4], self.field[7][2] = None, self.field[7][4]
+                    self.field[7][2].can_castle = False
+                    return True
+        return False
+
+    def castling7(self):
+        if self.color == WHITE:
+            if isinstance(self.field[0][7], Rook) and isinstance(self.field[0][4], King):
+                if (self.field[0][7].can_castle and self.field[0][4].can_castle and
+                        all([self.field[0][i] is None for i in range(5, 7)])):
+                    self.move_piece(0, 7, 0, 5)
+                    self.field[0][4], self.field[0][6] = None, self.field[0][4]
+                    self.field[0][6].can_castle = False
+                    return True
+        else:
+            if isinstance(self.field[7][7], Rook) and isinstance(self.field[7][4], King):
+                if (self.field[7][7].can_castle and self.field[7][4].can_castle and
+                        all([self.field[7][i] is None for i in range(5, 7)])):
+                    self.move_piece(7, 7, 7, 5)
+                    self.field[7][4], self.field[7][6] = None, self.field[7][4]
+                    self.field[7][6].can_castle = False
+                    return True
         return False
 
 
@@ -129,6 +164,10 @@ class Piece:
 
 class Rook(Piece):
     """Класс ладьи"""
+    def __init__(self, color):
+        super().__init__(color)
+        self.can_castle = True
+
     def char(self):
         return 'R'
 
@@ -209,6 +248,10 @@ class Knight(Piece):
 
 class King(Piece):
     """Класс короля"""
+    def __init__(self, color):
+        super().__init__(color)
+        self.can_castle = True
+
     def char(self):
         return 'K'
 
@@ -307,11 +350,44 @@ class Bishop(Piece):
 
 def main():
     board = Board()
-    board.field = [([None] * 8) for _ in range(8)]
-    board.field[6][7] = Pawn(WHITE)
-    print_board(board)
-    board.move_and_promote_pawn(6, 7, 7, 6, 'Q')
-    print_board(board)
+    board.field = [([None] * 8) for i in range(8)]
+    board.field[0][0] = Rook(WHITE)
+    board.field[0][4] = King(WHITE)
+    board.field[0][7] = Rook(WHITE)
+
+    board.field[7][0] = Rook(BLACK)
+    board.field[7][4] = King(BLACK)
+    board.field[7][7] = Rook(BLACK)
+
+    print('before:')
+    for row in range(7, -1, -1):
+        for col in range(8):
+            char = board.cell(row, col)[1]
+            print(char.replace(' ', '-'), end='')
+        print()
+    print()
+
+    print("Сдвиги ладей")
+    board.move_piece(0, 0, 0, 1)
+    board.move_piece(7, 0, 7, 1)
+    print(board.castling0())
+    print(board.castling7())
+
+    for row in range(7, -1, -1):
+        for col in range(8):
+            char = board.cell(row, col)[1]
+            print(char.replace(' ', '-'), end='')
+        print()
+    print()
+
+    print(board.castling0())
+    print(board.castling7())
+
+    for row in range(7, -1, -1):
+        for col in range(8):
+            char = board.cell(row, col)[1]
+            print(char.replace(' ', '-'), end='')
+        print()
 
 
 if __name__ == "__main__":
