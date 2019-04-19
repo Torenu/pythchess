@@ -97,9 +97,24 @@ class Board:
         for y in range(8):
             for x in range(8):
                 if self.field[y][x]:
-                    if color == self.field[y][x].color:
+                    if opponent(color) == self.field[y][x].color:
                         if self.field[y][x].can_move(self, y, x, row, col):
                             return True
+        return False
+
+    def move_and_promote_pawn(self, row, col, row1, col1, char):
+        if isinstance(self.field[row][col], Pawn) and (row1 == 7 or row1 == 0):
+            if self.field[row][col].can_move(self, row, col, row1, col1):
+                if char == 'Q':
+                    self.field[row1][col1] = Queen(self.field[row][col].color)
+                elif char == 'R':
+                    self.field[row1][col1] = Rook(self.field[row][col].color)
+                elif char == 'B':
+                    self.field[row1][col1] = Bishop(self.field[row][col].color)
+                elif char == 'N':
+                    self.field[row1][col1] = Knight(self.field[row][col].color)
+                self.field[row][col] = None
+                return True
         return False
 
 
@@ -118,7 +133,7 @@ class Rook(Piece):
         return 'R'
 
     def can_move(self, board, row, col, row1, col1):
-        if row < 0 or row > 7 or col < 0 or col > 7:
+        if not correct_coords(row, col) or not correct_coords(row1, col1):
             return False
         elif row == row1 and col == col1:
             return False
@@ -151,7 +166,7 @@ class Pawn(Piece):
         return 'P'
 
     def can_move(self, board, row, col, row1, col1):
-        if row < 0 or row > 7 or col < 0 or col > 7:
+        if not correct_coords(row, col) or not correct_coords(row1, col1):
             return False
         if self.color == WHITE:
             if col == col1:
@@ -182,7 +197,7 @@ class Knight(Piece):
         return 'N'
 
     def can_move(self, board, row, col, row1, col1):
-        if row < 0 or row > 7 or col < 0 or col > 7:
+        if not correct_coords(row, col) or not correct_coords(row1, col1):
             return False
         if sorted([abs(row - row1), abs(col - col1)]) == [1, 2]:
             if board.get_piece(row1, col1) is None:
@@ -198,7 +213,7 @@ class King(Piece):
         return 'K'
 
     def can_move(self, board, row, col, row1, col1):
-        if row < 0 or row > 7 or col < 0 or col > 7:
+        if not correct_coords(row, col) or not correct_coords(row1, col1):
             return False
         if row == row1 and col == col1:
             return False
@@ -206,7 +221,7 @@ class King(Piece):
             if board.get_piece(row1, col1) is None:
                 oldfield = [[k for k in i] for i in board.field]
                 board.field[row][col], board.field[row1][col1] = None, King(self.color)
-                if board.is_under_attack(row1, col1, opponent(self.color)):
+                if board.is_under_attack(row1, col1, self.color):
                     board.field = oldfield
                     return False
                 board.field = oldfield
@@ -214,7 +229,7 @@ class King(Piece):
             if opponent(self.color) == board.get_piece(row1, col1).color:
                 oldfield = [[k for k in i] for i in board.field]
                 board.field[row][col], board.field[row1][col1] = None, King(self.color)
-                if board.is_under_attack(row1, col1, opponent(self.color)):
+                if board.is_under_attack(row1, col1, self.color):
                     board.field = oldfield
                     return False
                 board.field = oldfield
@@ -228,7 +243,7 @@ class Queen(Piece):
         return 'Q'
 
     def can_move(self, board, row, col, row1, col1):
-        if row < 0 or row > 7 or col < 0 or col > 7:
+        if not correct_coords(row, col) or not correct_coords(row1, col1):
             return False
         elif row == row1 and col == col1:
             return False
@@ -272,7 +287,7 @@ class Bishop(Piece):
         return 'B'
 
     def can_move(self, board, row, col, row1, col1):
-        if row < 0 or row > 7 or col < 0 or col > 7:
+        if not correct_coords(row, col) or not correct_coords(row1, col1):
             return False
         elif row == row1 and col == col1:
             return False
@@ -293,21 +308,11 @@ class Bishop(Piece):
 def main():
     board = Board()
     board.field = [([None] * 8) for _ in range(8)]
-    queen = King(BLACK)
-    r0, c0 = 4, 5
-    board.field[r0][c0] = queen
-    board.field[2][5] = Queen(WHITE)
-
-    for row in range(7, -1, -1):
-        for col in range(8):
-            if queen.can_move(board, r0, c0, row, col):
-                print('x', end='')
-            else:
-                cell = board.cell(row, col)[1]
-                cell = cell if cell != ' ' else '-'
-                print(cell, end='')
-        print()
+    board.field[6][7] = Pawn(WHITE)
     print_board(board)
+    board.move_and_promote_pawn(6, 7, 7, 6, 'Q')
+    print_board(board)
+
 
 if __name__ == "__main__":
     main()
