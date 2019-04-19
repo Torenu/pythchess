@@ -14,14 +14,14 @@ def print_board(board):
     """Распечатать доску в текстовом виде"""
     print('     +----+----+----+----+----+----+----+----+')
     for row in range(7, -1, -1):
-        print(' ', row, end='  ')
+        print(' ', row + 1, end='  ')
         for col in range(8):
             print('|', board.cell(row, col), end=' ')
         print('|')
         print('     +----+----+----+----+----+----+----+----+')
     print(end='        ')
     for col in range(8):
-        print(col, end='    ')
+        print(chr(col + 97), end='    ')
     print()
 
 
