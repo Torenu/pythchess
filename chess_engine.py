@@ -81,15 +81,33 @@ class Board:
         Если нет --- вернёт False"""
 
         piece = self.field[row][col]
+        oldfield = [[k for k in i] for i in self.field]
+        oldboard = Board()
+        oldboard.field = oldfield
+        oldboard.color = self.color
         if piece is None:
             return False
         if piece.color != self.color:
             return False
-        if self.castling0(row, col, row1, col1):
+        if oldboard.castling0(row, col, row1, col1):
+            if oldboard.is_king_under_attack():
+                return False
+            self.field = oldboard.field
+            self.color = opponent(self.color)
             return True
-        if self.castling7(row, col, row1, col1):
+        if oldboard.castling7(row, col, row1, col1):
+            if oldboard.is_king_under_attack():
+                return False
+            self.field = oldboard.field
+            self.color = opponent(self.color)
             return True
         if piece.can_move(self, row, col, row1, col1):
+            if self.is_king_under_attack():
+                if not oldboard.move_and_promote_pawn(row, col, row1, col1):
+                    oldboard.field[row][col] = None  # Снять фигуру.
+                    oldboard.field[row1][col1] = piece  # Поставить на новое место.
+                if oldboard.is_king_under_attack():
+                    return False
             if isinstance(piece, King) or isinstance(piece, Rook):
                 piece.can_castle = False
             if self.move_and_promote_pawn(row, col, row1, col1):
@@ -110,6 +128,15 @@ class Board:
                         if self.field[y][x].can_move(self, y, x, row, col):
                             return True
         return False
+
+    def is_king_under_attack(self):
+        for y in range(8):
+            for x in range(8):
+                if isinstance(self.field[y][x], King):
+                    if self.field[y][x].color == self.color:
+                        if self.is_under_attack(y, x, self.field[y][x].color):
+                            return y, x
+                        return False
 
     def move_and_promote_pawn(self, row, col, row1, col1):
         if isinstance(self.field[row][col], Pawn) and (row1 == 7 or row1 == 0):
@@ -158,17 +185,15 @@ class Board:
         return False
 
     def check_mate(self):
-        for y in range(8):
-            for x in range(8):
-                if isinstance(self.field[y][x], King):
-                    if self.field[y][x].color == self.color:
-                        if not self.is_under_attack(y, x, self.field[y][x].color):
-                            return True
-                        for y1 in range(8):
-                            for x1 in range(8):
-                                if self.field[y][x].can_move(self, y, x, y1, x1):
-                                    return True
-        return False
+        a = self.is_king_under_attack()
+        if a:
+            for y in range(8):
+                for x in range(8):
+                    if self.field[a[0]][a[1]].can_move(self, *a, y, x):
+                        return True
+            return False
+        else:
+            return True
 
 
 class Piece:

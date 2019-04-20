@@ -121,8 +121,8 @@ for x in range(8):
 
 txt = []
 
-for i in range(7, -1, -1):
-    txt.append(Text(Point(810, 100 * i + 50), i + 1))
+for i in range(8):
+    txt.append(Text(Point(810, 100 * i + 50), 8 - i))
 
 for i in range(8):
     txt.append(Text(Point(100 * i + 50, 812), chr(i + 97)))
