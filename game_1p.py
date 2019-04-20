@@ -46,6 +46,10 @@ def secondpoint(event):
     txt[4].setText(a)
 
 
+def close_game():
+    win.close()
+
+
 def chess_move(event):
     if board.color == WHITE:
         txt[2].undraw()
@@ -67,6 +71,7 @@ def chess_move(event):
         win.unbind('<Button-1>')
         win.unbind('<Button-2>')
         win.unbind('<Button-3>')
+        win.bind('<Escape>', close_game)
         for i in txt:
             i.undraw()
         if board.color == WHITE:
@@ -78,7 +83,6 @@ def chess_move(event):
         moves.append(a)
         stockfish.set_position(moves)
         a = [[int(a[1]) - 1, ord(a[0]) - 97], [int(a[3]) - 1, ord(a[2]) - 97]]
-        print(a)
         board.move_piece(*a[0], *a[1])
         undraw_pieces(image_field)
         draw_pieces(image_field)
@@ -88,12 +92,16 @@ def chess_move(event):
         win.unbind('<Button-1>')
         win.unbind('<Button-2>')
         win.unbind('<Button-3>')
+        win.bind('<Escape>', close_game)
         for i in txt:
             i.undraw()
         if board.color == WHITE:
             txt[5].draw(win)
         else:
             txt[6].draw(win)
+        exit_message = Text(Point(950, 650), 'Нажмите Escape чтобы\nзакрыть окно')
+        exit_message.setSize(15)
+        exit_message.draw(win)
 
 
 board = Board()
@@ -161,5 +169,5 @@ win.bind('<Button-1>', firstpoint)
 win.bind('<Button-2>', chess_move)
 win.bind('<Button-3>', secondpoint)
 
-win.getMouse()
+win.getKey()
 win.close()

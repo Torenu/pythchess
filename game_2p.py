@@ -45,6 +45,10 @@ def secondpoint(event):
     txt[4].setText(a)
 
 
+def close_game():
+    win.close()
+
+
 def chess_move(event):
     txt[2].undraw()
     if board.move_piece(*current_move[0], *current_move[1]):
@@ -64,12 +68,16 @@ def chess_move(event):
         win.unbind('<Button-1>')
         win.unbind('<Button-2>')
         win.unbind('<Button-3>')
+        win.bind('<Escape>', close_game)
         for i in txt:
             i.undraw()
         if board.color == WHITE:
             txt[5].draw(win)
         else:
             txt[6].draw(win)
+        exit_message = Text(Point(950, 650), 'Нажмите Escape чтобы\nзакрыть окно')
+        exit_message.setSize(15)
+        exit_message.draw(win)
 
 
 board = Board()
