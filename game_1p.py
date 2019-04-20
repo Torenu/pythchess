@@ -71,13 +71,16 @@ def chess_move(event):
         win.unbind('<Button-1>')
         win.unbind('<Button-2>')
         win.unbind('<Button-3>')
-        win.bind('<Escape>', close_game)
+        win.bind('<Return>', close_game)
         for i in txt:
             i.undraw()
         if board.color == WHITE:
             txt[5].draw(win)
         else:
             txt[6].draw(win)
+        exit_message = Text(Point(950, 620), 'Нажмите любую кнопку чтобы\nзакрыть окно')
+        exit_message.setSize(15)
+        exit_message.draw(win)
     if board.color == BLACK:
         a = stockfish.get_best_move()
         moves.append(a)
@@ -92,14 +95,14 @@ def chess_move(event):
         win.unbind('<Button-1>')
         win.unbind('<Button-2>')
         win.unbind('<Button-3>')
-        win.bind('<Escape>', close_game)
+        win.bind('<Return>', close_game)
         for i in txt:
             i.undraw()
         if board.color == WHITE:
             txt[5].draw(win)
         else:
             txt[6].draw(win)
-        exit_message = Text(Point(950, 650), 'Нажмите Escape чтобы\nзакрыть окно')
+        exit_message = Text(Point(950, 620), 'Нажмите любую кнопку чтобы\nзакрыть окно')
         exit_message.setSize(15)
         exit_message.draw(win)
 
