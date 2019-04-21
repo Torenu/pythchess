@@ -135,7 +135,7 @@ class Board:
                 if isinstance(self.field[y][x], King):
                     if self.field[y][x].color == self.color:
                         if self.is_under_attack(y, x, self.field[y][x].color):
-                            return y, x
+                            return True
                         return False
 
     def move_and_promote_pawn(self, row, col, row1, col1):
@@ -185,15 +185,20 @@ class Board:
         return False
 
     def check_mate(self):
-        a = self.is_king_under_attack()
-        if a:
-            for y in range(8):
-                for x in range(8):
-                    if self.field[a[0]][a[1]].can_move(self, *a, y, x):
-                        return True
-            return False
-        else:
-            return True
+        for y1 in range(8):
+            for x1 in range(8):
+                for y2 in range(8):
+                    for x2 in range(8):
+                        if self.field[y1][x1] is not None:
+                            if (self.field[y1][x1].can_move(self, y1, x1, y2, x2) and
+                                    self.field[y1][x1].color == self.color):
+                                oldfield = [[k for k in i] for i in self.field]
+                                oldboard = Board()
+                                oldboard.field = oldfield
+                                oldboard.color = self.color
+                                if oldboard.move_piece(y1, x1, y2, x2):
+                                    return y1, x1, y2, x2
+        return False
 
 
 class Piece:
@@ -388,5 +393,4 @@ class Bishop(Piece):
                     return True
                 if board.get_piece(row1, col1).color == opponent(self.color):
                     return True
-        return False
 
