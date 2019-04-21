@@ -74,7 +74,7 @@ def chess_move(event):
         win.bind('<Return>', close_game)
         for i in txt:
             i.undraw()
-        txt[6].draw(win)
+        txt[5].draw(win)
     elif board.color == BLACK:
         a = stockfish.get_best_move()
         moves.append(a)
@@ -92,7 +92,7 @@ def chess_move(event):
         win.bind('<Return>', close_game)
         for i in txt:
             i.undraw()
-        txt[5].draw(win)
+        txt[6].draw(win)
         exit_message = Text(Point(950, 620), 'Нажмите любую кнопку чтобы\nзакрыть окно')
         exit_message.setSize(15)
         exit_message.draw(win)
