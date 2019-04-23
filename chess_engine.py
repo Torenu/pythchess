@@ -10,18 +10,17 @@ def opponent(color):
         return WHITE
 
 
-def print_board(board):
-    """Распечатать доску в текстовом виде"""
+def print_board(board):  # Распечатать доску в текстовом виде (см. скриншот)
     print('     +----+----+----+----+----+----+----+----+')
     for row in range(7, -1, -1):
-        print(' ', row + 1, end='  ')
+        print(' ', row, end='  ')
         for col in range(8):
             print('|', board.cell(row, col), end=' ')
         print('|')
         print('     +----+----+----+----+----+----+----+----+')
     print(end='        ')
     for col in range(8):
-        print(chr(col + 97), end='    ')
+        print(col, end='    ')
     print()
 
 
@@ -102,17 +101,15 @@ class Board:
             self.color = opponent(self.color)
             return True
         if piece.can_move(self, row, col, row1, col1):
-            if self.is_king_under_attack():
-                if not oldboard.move_and_promote_pawn(row, col, row1, col1):
-                    oldboard.field[row][col] = None  # Снять фигуру.
-                    oldboard.field[row1][col1] = piece  # Поставить на новое место.
-                if oldboard.is_king_under_attack():
-                    return False
             if isinstance(piece, King) or isinstance(piece, Rook):
                 piece.can_castle = False
             if self.move_and_promote_pawn(row, col, row1, col1):
                 self.color = opponent(self.color)
                 return True
+            oldboard.field[row][col] = None  # Снять фигуру.
+            oldboard.field[row1][col1] = piece  # Поставить на новое место.
+            if oldboard.is_king_under_attack():
+                return False
             self.field[row][col] = None  # Снять фигуру.
             self.field[row1][col1] = piece  # Поставить на новое место.
             self.color = opponent(self.color)
@@ -393,4 +390,3 @@ class Bishop(Piece):
                     return True
                 if board.get_piece(row1, col1).color == opponent(self.color):
                     return True
-
