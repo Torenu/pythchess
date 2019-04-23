@@ -100,12 +100,15 @@ class Board:
             self.field = oldboard.field
             self.color = opponent(self.color)
             return True
+        if oldboard.move_and_promote_pawn(row, col, row1, col1):
+            if oldboard.is_king_under_attack():
+                return False
+            self.color = opponent(self.color)
+            self.move_and_promote_pawn(row, col, row1, col1)
+            return True
         if piece.can_move(self, row, col, row1, col1):
             if isinstance(piece, King) or isinstance(piece, Rook):
                 piece.can_castle = False
-            if self.move_and_promote_pawn(row, col, row1, col1):
-                self.color = opponent(self.color)
-                return True
             oldboard.field[row][col] = None  # Снять фигуру.
             oldboard.field[row1][col1] = piece  # Поставить на новое место.
             if oldboard.is_king_under_attack():
