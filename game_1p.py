@@ -12,7 +12,8 @@ def draw_pieces(image_field):
     for x in range(8):
         for y in range(8):
             if board.field[y][x]:
-                image_field[y][x] = Image(Point(x * 100 + 50, 700 - y * 100 + 50), board.cell(y, x) + '.png')
+                image_field[y][x] = Image(Point(x * 100 + 50, 700 - y * 100 + 50),
+                                          'Sprites/' + board.cell(y, x) + '.png')
                 image_field[y][x].draw(win)
 
 
